@@ -1,0 +1,12 @@
+PROGRAM BOILERPLATE
+====================
+
+API providing a few macros needed to smoothly incorporate application code
+into the test battery.
+
+§1. #TES_STATIC
+----------------
+
+This is used to make otherwise local functions public to other compilation
+units, so the test suite can call into them. Normal builds will have this
+resolve to static; test builds will instead change it to extern.

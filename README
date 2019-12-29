@@ -1,0 +1,47 @@
+Test Engineering Suite
+
+Created by Alexander Nicholi
+Copyright © 2019 ARQADIUM, LLC
+All rights reserved.
+
+See COMPILING for build instructions. See CONTRIBUTING for guidelines and an
+introduction to modifying the framework. See COPYING for licencing. The
+teslib/ subfolder contains the source for the test library programs link to.
+The doc/ subfolder contains documentation on the library API and the schema
+file format.
+
+§1. Introduction
+-----------------
+
+The creation of TES began with Arqadium’s software developments in C, as the
+need arose for a simple and reliable testing apparatus with programming for
+video games and the worldwide web. We began by examining Google’s C++ testing
+framework, GTest, on an executive level, so that we could imitate what they
+did and make a testing framework uniquely suited to the needs of Arqadium.
+We decided to disclude supporting C++, as we prefer ANSI C instead. In the
+place of C++’s metaprogramming we devised a schema format to describe details
+about tests that are best not written in C (macro hell). TES will support the
+two development environments that Arqadium uses: GNU/Linux and macOS.
+
+§2. Structure of a Test Suite
+------------------------------
+
+Here is a repository dirtree.
+
+repo¶
+	src/
+		aux.c
+		aux.h
+		main.c
+	test/
+		aux.c
+		datas.fix.h
+		main.c
+	Makefile
+	README
+
+The program’s source code is contained in src/, while the tests for each C
+file (treated as one CU, by convention) correspond in the test/ folder. The
+Makefile contains all of the usual targets for building the program, plus an
+additional .PHONY target, ‘test’, which should invoke the testool command with
+some flags.

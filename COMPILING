@@ -1,0 +1,25 @@
+Test Engineering Suite Build Instructions
+
+Written by Alexander Nicholi
+Copyright © 2019 Arqadium, LLC.
+Released under BSD-2-Clause.
+
+§1. PREREQUISITES
+------------------
+
+1. Arch Linux: base-devel, clang-format
+2. Debian: gcc, g++, make, clang-format
+3. macOS: XCode tools (note 1), clang-format
+
+§2. BUILD COMMAND
+------------------
+
+Use a POSIX-compliant shell, and run ‘make’ to build the default target
+(debug). The ‘-j’ option is fully supported for job control, and can be given
+an argument for the number of parallel jobs with the form ‘-j$(nproc)’ (on
+Linux) or ‘-j$(sysctl -n hw.ncpu)’ (on macOS). The ‘-j$(nproc)’ form works on
+macOS too if GNU coreutils is installed.
+
+Several targets are available: debug, release, check, cov, and asan. The
+default target is debug. Run ‘make clean’ to delete all of the project’s
+ofiles and other build outputs.

@@ -1,0 +1,27 @@
+TEST BATTERY
+=============
+
+API for writing the test battery of a program.
+
+§1. #TES_{ASSERT,EXPECT}_*
+---------------------------
+
+This collection of macros comprises the bulk of the test battery API. All of
+the variants of binary comparison exist, along with ANSI C boolean versions,
+and string content equality macros too. Upon failure, ASSERT macros will abort
+the program; EXPECT macros will note the failure and continue testing. Thus,
+it is best to use EXPECT unless there would be insufficient valid state to
+continue upon its failure.
+
+§2. TES_{PRE,POST}
+-------------------
+
+These functions are declared as extern in teslib’s main.c. You must implement
+them in your test program, although their bodies may be empty.
+
+§3. TES_TESTS
+--------------
+
+This function is declared as extern in teslib’s main.c. Your test battery
+should be written inside this function, as it will be called from the library.
+Be sure to #include <tes/battery.h> as well.
