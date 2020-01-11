@@ -11,23 +11,28 @@
 #include <stdlib.h>
 #include <string.h>
 
+extern void tes_post( void );
+extern void tes_fin( void );
+
 #define LOG_FATAL( ) fprintf( stdout, "This failure is fatal. Exiting...\n" )
 
 #define DECL_TES_FATAL( NN, STR ) \
-	void tes_fatal_##NN( \
+	int tes_fatal_##NN( \
 	   const char* x, const char* y, const char* f, unsigned l ) \
 	{ \
 		log_fail2( STR, x, y, f, l ); \
 		LOG_FATAL( ); \
-		abort( ); \
+		atexit( tes_fin ); \
+		atexit( tes_post ); \
+		exit( 1 ); return 0; \
 	} \
 	struct _tes_dummy
 
 #define DECL_TES_WARN( NN, STR ) \
-	void tes_warn_##NN( \
+	int tes_warn_##NN( \
 	   const char* x, const char* y, const char* f, unsigned l ) \
 	{ \
-		log_fail2( STR, x, y, f, l ); \
+		log_fail2( STR, x, y, f, l ); return 0; \
 	} \
 	struct _tes_dummy
 
@@ -129,40 +134,56 @@ DECL_TES_PASS( lt, "<" );
 DECL_TES_PASS( str_eq, "===" );
 DECL_TES_PASS( str_ne, "!==" );
 
-void tes_fatal_true( const char* x, const char* f, unsigned l )
+int tes_fatal_true( const char* x, const char* f, unsigned l )
 {
 	log_fail1( "was false", x, f, l );
 	LOG_FATAL( );
-	abort( );
+
+	atexit( tes_fin );
+	atexit( tes_post );
+
+	exit( 1 );
+
+	return 0;
 }
 
-void tes_fatal_false( const char* x, const char* f, unsigned l )
+int tes_fatal_false( const char* x, const char* f, unsigned l )
 {
 	log_fail1( "was true", x, f, l );
 	LOG_FATAL( );
-	abort( );
+
+	atexit( tes_fin );
+	atexit( tes_post );
+
+	exit( 1 );
+	
+	return 0;
 }
 
-void tes_warn_true( const char* x, const char* f, unsigned l )
+int tes_warn_true( const char* x, const char* f, unsigned l )
 {
 	log_fail1( "was false", x, f, l );
+
+	return 0;
 }
 
-void tes_warn_false( const char* x, const char* f, unsigned l )
+int tes_warn_false( const char* x, const char* f, unsigned l )
 {
 	log_fail1( "was true", x, f, l );
+
+	return 0;
 }
 
 int tes_pass_true( const char* x, const char* f, unsigned l )
 {
 	log_pass1( "was true", x, f, l );
 
-	return 0;
+	return 1;
 }
 
 int tes_pass_false( const char* x, const char* f, unsigned l )
 {
 	log_pass1( "was false", x, f, l );
 
-	return 0;
+	return 1;
 }

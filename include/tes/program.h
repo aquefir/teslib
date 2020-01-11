@@ -9,7 +9,7 @@
 #define INC_API__TES_PROGRAM_H
 
 #ifdef TES_BUILD
-#define TES_STATIC extern
+#define TES_STATIC
 #else
 #define TES_STATIC static
 #endif
