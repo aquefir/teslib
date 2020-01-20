@@ -52,7 +52,7 @@ static void log_fail2( const char* cus,
    unsigned line )
 {
 	fprintf( stdout,
-	   "[FAILED] file: \"%s\"; line: %u; Expression: %s %s %s\n",
+	   "[\033[31mFAILED\033[0m] file: \"%s\"; line: %u; Expression: %s %s %s\n",
 	   file,
 	   line,
 	   x,
@@ -67,7 +67,7 @@ static void log_pass2( const char* cus,
    unsigned line )
 {
 	fprintf( stdout,
-	   "[PASSED] file: \"%s\"; line: %u; Expression: %s %s %s\n",
+	   "[\033[32mPASSED\033[0m] file: \"%s\"; line: %u; Expression: %s %s %s\n",
 	   file,
 	   line,
 	   x,
@@ -79,7 +79,7 @@ static void log_fail1(
    const char* cus, const char* x, const char* file, unsigned line )
 {
 	fprintf( stdout,
-	   "[FAILED] file: \"%s\"; line: %u; Expression: %s %s\n",
+	   "[\033[31mFAILED\033[0m] file: \"%s\"; line: %u; Expression: %s %s\n",
 	   file,
 	   line,
 	   x,
@@ -90,7 +90,7 @@ static void log_pass1(
    const char* cus, const char* x, const char* file, unsigned line )
 {
 	fprintf( stdout,
-	   "[PASSED] file: \"%s\"; line: %u; Expression: %s %s\n",
+	   "[\033[32mPASSED\033[0m] file: \"%s\"; line: %u; Expression: %s %s\n",
 	   file,
 	   line,
 	   x,
