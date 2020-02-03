@@ -22,7 +22,8 @@ int main( int ac, char* av[] )
 	int r;
 
 	printf(
-	   "TEST ENGINEERING SUITE\n\nCopyright (C) 2019 ARQADIUM, LLC\nAll rights reserved.\n\n" );
+	   "TEST ENGINEERING SUITE\n\nCopyright (C) 2019-2020 ARQADIUM LLC\n"
+		"All rights reserved.\n\n" );
 
 	printf( "Executing pre-test function...\n" );
 	tes_pre( ac, av );
