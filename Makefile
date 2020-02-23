@@ -2,7 +2,7 @@
 ##                          Test Engineering Suite                          ##
 ##                                                                          ##
 ##                      Copyright © 2019 ARQADIUM, LLC                      ##
-##                           All rights reserved.                           ##
+##                       Released under BSD-2-Clause.                       ##
 ##############################################################################
 
 include base.mk

@@ -2,7 +2,7 @@
  *                        Test Engineering Framework                        *
  *                                                                          *
  *                      Copyright © 2019 ARQADIUM, LLC                      *
- *                           All rights reserved.                           *
+ *                       Released under BSD-2-Clause.                       *
 \****************************************************************************/
 
 #ifndef INC__TES_TES_H
