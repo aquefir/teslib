@@ -40,14 +40,3 @@ GCDAFILES := $(CFILES:.c=.c.gcda) $(CPPFILES:.cpp=.cpp.gcda)
 
 # this defines all our usual targets
 include targets.mk
-
-clean:
-	$(RM) $(TARGETS)
-	$(RM) $(OFILES)
-	$(RM) $(GCNOFILES)
-	$(RM) $(GCDAFILES)
-
-format:
-	for _file in $(CFILES) $(HFILES) $(CPPFILES) $(HPPFILES); do \
-		$(FMT) -i -style=file $$_file ; \
-	done

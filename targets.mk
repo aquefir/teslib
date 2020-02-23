@@ -12,28 +12,25 @@
 ## this file expects the following variables to be defined:
 ## CFILES, CPPFILES, HFILES, HPPFILES, GCNOFILES, GCDAFILES, CFLAGS, CXXFLAGS,
 ## LDFLAGS, CC, CXX, AR, FMT, INCLUDES, INCLUDEL, LIBDIRS, LIBS, FWORKS,
-## OFILES, PROJECT, EXEFILE, AFILE, SOFILE, 3PLIBS, 3PLIBDIR
-
-# Add 3rd-party includes
-INCLUDES += $(patsubst %,$(3PLIBDIR)/%lib/include,$(3PLIBS))
-
-# Add 3rd-party library directories
-LIBDIRS += $(patsubst %,$(3PLIBDIR)/%lib,$(3PLIBS))
-LIBS += $(3PLIBS)
+## OFILES, PROJECT, EXEFILE, AFILE, SOFILE
 
 # Variable transformations for command invocation
 LIB := $(patsubst %,-l%,$(LIBS)) $(patsubst %,-L%,$(LIBDIRS))
+ifeq ($(CC.CUSTOM),tcc)
+INCLUDE := $(patsubst %,-I%,$(INCLUDES)) $(patsubst %,-isystem %,$(INCLUDEL))
+else
 INCLUDE := $(patsubst %,-isystem %,$(INCLUDES)) \
 	$(patsubst %,-iquote %,$(INCLUDEL))
+endif
 FWORK := $(patsubst %,-framework %,$(FWORKS))
 
 # Populated below
 TARGETS :=
 
 # specify all target filenames
-EXETARGET := $(PROJECT)$(EXE)
+EXETARGET := $(PROJECT)
 SOTARGET  := lib$(PROJECT).$(SO)
-ATARGET   := lib$(PROJECT).$(A)
+ATARGET   := lib$(PROJECT).a
 
 ifeq ($(strip $(EXEFILE)),1)
 TARGETS += $(EXETARGET)
@@ -53,37 +50,98 @@ else
 	CCLD ?= $(CXX)
 endif
 
-.PHONY: debug release check cov asan
+.PHONY: debug release check cov asan clean format
 
+## Debug build
+## useful for: normal testing, valgrind, LLDB
+##
+ifeq ($(CC.CUSTOM),tcc)
+debug: CFLAGS += -UNDEBUG
+else
 debug: CFLAGS += -O0 -g3 -UNDEBUG
+endif
+debug: CXXFLAGS += -O0 -g3 -UNDEBUG
 debug: REALSTRIP := ':' ; # : is a no-op
 debug: $(TARGETS)
 
+## Release build
+## useful for: deployment
+##
+ifeq ($(CC.CUSTOM),tcc)
+release: CFLAGS += -DNDEBUG=1
+else
 release: CFLAGS += -O2 -DNDEBUG=1
+endif
+release: CXXFLAGS += -O2 -DNDEBUG=1
 release: REALSTRIP := $(STRIP) ;
 release: $(TARGETS)
 
-check: CFLAGS += -Wextra -Werror -Os -DNDEBUG=1
+## Sanity check build
+## useful for: pre-tool bug squashing
+##
+ifeq ($(CC.CUSTOM),tcc)
+check: CFLAGS += -Werror -Wunsupported -DNDEBUG=1
+else
+check: CFLAGS += -Wextra -Werror -Wno-unused-variable -Os -DNDEBUG=1
+endif
+check: CXXFLAGS += -Wextra -Werror -Wno-unused-variable -Os -DNDEBUG=1
 check: REALSTRIP := ':' ; # : is a no-op
 check: $(TARGETS)
 
-cov: CFLAGS += -O0 -g3 -UNDEBUG -fprofile-arcs -ftest-coverage
-cov: LDFLAGS += -fprofile-arcs
+## Code coverage build
+## useful for: checking coverage of test suite
+##
 cov: REALSTRIP := ':' ; # : is a no-op
+ifeq ($(CC.CUSTOM),tcc)
+cov: CFLAGS += -UNDEBUG
 cov: $(TARGETS)
+else
+ifeq ($(strip $(NO_TES)),)
+cov: CFLAGS += -O0 -g3 -UNDEBUG -fprofile-instr-generate -fcoverage-mapping \
+	-DTES_BUILD=1
+else
+cov: -UTES_BUILD
+endif # NO_TES
+endif # CC.CUSTOM
+ifeq ($(strip $(NO_TES)),)
+cov: CXXFLAGS += -O0 -g3 -UNDEBUG -fprofile-instr-generate \
+	-fcoverage-mapping -DTES_BUILD=1
+cov: LDFLAGS += -fprofile-instr-generate -fcoverage-mapping
+cov: LIB += -ltes
+cov: $(TESTARGET)
+else
+cov: -UTES_BUILD
+cov: $(TARGETS)
+endif # NO_TES
 
-# address sanitised build for valgrind
-ifeq ($(CC),clang)
+## Address sanitised build
+## useful for: squashing memory issues
+##
+asan: REALSTRIP := ':' ; # : is a no-op
+ifeq ($(CC.CUSTOM),tcc)
+asan: CFLAGS += -UNDEBUG
+asan: $(TARGETS)
+else
+ifeq ($(strip $(NO_TES)),)
 asan: CFLAGS += -fsanitize=address -fno-omit-frame-pointer -O1 -g3 \
 	-fno-common -fno-optimize-sibling-calls -fsanitize=undefined \
-	-fno-sanitize-recover=all
+	-fno-sanitize-recover=all -DTES_BUILD=1
 else
 asan: CFLAGS += -fsanitize=address -fno-omit-frame-pointer -O1 -g \
-	-fno-common -fno-optimize-sibling-calls
-endif
-asan: LDFLAGS += -fsanitize=address
-asan: REALSTRIP := ':' ; # : is a no-op
+	-fno-common -fno-optimize-sibling-calls -UTES_BUILD
+endif # NO_TES
+endif # CC.CUSTOM
+ifeq ($(strip $(NO_TES)),)
+asan: CXXFLAGS += -fsanitize=address -fno-omit-frame-pointer -O1 -g3 \
+	-fno-common -fno-optimize-sibling-calls -fsanitize=undefined \
+	-fno-sanitize-recover=all -DTES_BUILD=1
+#asan: LDFLAGS += -fsanitize=address -L$(3PLIBDIR)/teslib
+asan: LIB += -ltes
+asan: $(TESTARGET)
+else
+asan: CXXFLAGS += -UTES_BUILD
 asan: $(TARGETS)
+endif
 
 # Object file builds
 %.cpp.o: %.cpp
@@ -105,3 +163,18 @@ $(SOTARGET): $(OFILES)
 $(EXETARGET): $(OFILES)
 	$(CCLD) $(LDFLAGS) -o $@ $(LIB) $^
 	$(REALSTRIP) -s $^
+
+DSYMS := $(patsubst %,%.dSYM,$(TARGETS)) $(patsubst %,%.dSYM,$(TESTARGET))
+
+clean:
+	$(RM) $(TARGETS)
+	$(RM) -r $(DSYMS)
+	$(RM) $(OFILES)
+	$(RM) $(GCNOFILES)
+	$(RM) $(GCDAFILES)
+
+format: $(CFILES) $(HFILES) $(CPPFILES) $(HPPFILES)
+	for _file in $^; do \
+		$(FMT) -i -style=file $$_file ; \
+	done
+	unset _file
