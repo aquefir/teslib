@@ -12,7 +12,20 @@
 ## this file expects the following variables to be defined:
 ## CFILES, CPPFILES, HFILES, HPPFILES, GCNOFILES, GCDAFILES, CFLAGS, CXXFLAGS,
 ## LDFLAGS, CC, CXX, AR, FMT, INCLUDES, INCLUDEL, LIBDIRS, LIBS, FWORKS,
-## OFILES, PROJECT, EXEFILE, AFILE, SOFILE
+## OFILES, PROJECT, EXEFILE, AFILE, SOFILE, 3PLIBS, 3PLIBDIR, TES_CFILES,
+## TES_CPPFILES, TES_HFILES, TES_HPPFILES, TES_GCNOFILES, TES_GCDAFILES
+
+# Add 3rd-party includes
+INCLUDES += $(patsubst %,$(3PLIBDIR)/%lib/include,$(3PLIBS))
+
+INCLUDES += $(3PLIBDIR)/teslib/include
+ifeq ($(strip $(NO_TES)),)
+3PLIBS += tes
+endif
+
+# Add 3rd-party library directories
+LIBDIRS += $(patsubst %,$(3PLIBDIR)/%lib,$(3PLIBS))
+LIBS += $(3PLIBS)
 
 # Variable transformations for command invocation
 LIB := $(patsubst %,-l%,$(LIBS)) $(patsubst %,-L%,$(LIBDIRS))
@@ -26,6 +39,8 @@ FWORK := $(patsubst %,-framework %,$(FWORKS))
 
 # Populated below
 TARGETS :=
+
+TESTARGET := $(PROJECT)_test
 
 # specify all target filenames
 EXETARGET := $(PROJECT)
@@ -97,15 +112,23 @@ cov: CFLAGS += -UNDEBUG
 cov: $(TARGETS)
 else
 ifeq ($(strip $(NO_TES)),)
-cov: CFLAGS += -O0 -g3 -UNDEBUG -fprofile-instr-generate -fcoverage-mapping \
+ifeq ($(strip $(CC.NAME)),gcc)
+cov: CFLAGS += -O1 -g3 -UNDEBUG -fprofile-arcs -ftest-coverage -DTES_BUILD=1
+else ifeq ($(strip $(CC.NAME)),clang)
+cov: CFLAGS += -O1 -g3 -UNDEBUG -fprofile-instr-generate -fcoverage-mapping \
 	-DTES_BUILD=1
+endif
 else
 cov: -UTES_BUILD
 endif # NO_TES
 endif # CC.CUSTOM
 ifeq ($(strip $(NO_TES)),)
-cov: CXXFLAGS += -O0 -g3 -UNDEBUG -fprofile-instr-generate \
+ifeq ($(strip $(CC.NAME)),gcc)
+cov: CXXFLAGS += -O1 -g3 -UNDEBUG -fprofile-arcs -ftest-coverage -DTES_BUILD=1
+else ifeq ($(strip $(CC.NAME)),clang)
+cov: CXXFLAGS += -O1 -g3 -UNDEBUG -fprofile-instr-generate \
 	-fcoverage-mapping -DTES_BUILD=1
+endif
 cov: LDFLAGS += -fprofile-instr-generate -fcoverage-mapping
 cov: LIB += -ltes
 cov: $(TESTARGET)
@@ -164,15 +187,25 @@ $(EXETARGET): $(OFILES)
 	$(CCLD) $(LDFLAGS) -o $@ $(LIB) $^
 	$(REALSTRIP) -s $^
 
+$(TESTARGET): $(OFILES) $(TES_OFILES)
+	$(CCLD) $(LDFLAGS) -o $@ $(LIB) $^
+
 DSYMS := $(patsubst %,%.dSYM,$(TARGETS)) $(patsubst %,%.dSYM,$(TESTARGET))
 
 clean:
 	$(RM) $(TARGETS)
+	$(RM) $(TESTARGET)
 	$(RM) -r $(DSYMS)
 	$(RM) $(OFILES)
 	$(RM) $(GCNOFILES)
 	$(RM) $(GCDAFILES)
+	$(RM) $(TES_OFILES)
+	$(RM) $(TES_GCNOFILES)
+	$(RM) $(TES_GCDAFILES)
 
+ifeq ($(strip $(NO_TES)),)
+format: $(TES_CFILES) $(TES_HFILES) $(TES_CPPFILES) $(TES_HPPFILES)
+endif
 format: $(CFILES) $(HFILES) $(CPPFILES) $(HPPFILES)
 	for _file in $^; do \
 		$(FMT) -i -style=file $$_file ; \
