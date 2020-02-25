@@ -22,15 +22,13 @@
 		tes_assert_dot_ct = 0; \
 	int main( int ac, char* av[] ) \
 	{ \
-		PRINTLN( "TEST ENGINEERING SUITE\n\nCopyright (C) 2019-2020 ARQADIUM " \
-			"LLC\nReleased under BSD-2-Clause.\n" ); \
-		PRINTLN( "Test battery for: %s\n", test_title ); \
+		tes_println( "TEST ENGINEERING SUITE\n\nCopyright (C) 2019-2020 ARQADIUM LLC\nReleased under BSD-2-Clause.\n" ); \
+		tes_println( "Test battery for: %s\n", test_title ); \
 		(void)0
 
+/* finish a unit test */
 #define TES_CLOSE( ) \
-		TES_TEST_RESULT( ); \
-		PRINTLN( "Test battery complete!\n\nRESULT: %s\n%i of %i tests ", \
-			"passed", tes_test_failed == 0 ? "Success." : "Failure!", \
+		tes_println( "Test battery complete!\n\nRESULT: %s\n%i of %i tests passed", tes_test_failed == 0 ? "Success." : "Failure!", \
 			(tes_test_ttl - tes_ttl_failed), tes_test_ttl ); \
 		return tes_ttl_failed; \
 	} struct _tes_dummy
@@ -206,6 +204,7 @@ extern int tes_pass_mem_ne(
 
 extern int tes_chkstr( const char*, const char* );
 extern int tes_chkmem( void*, void*, unsigned );
+extern int tes_println( const char*, ... );
 
 #ifdef __cplusplus
 }

@@ -7,12 +7,27 @@
 
 #include "tes.h"
 
+#include <stdarg.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 
-extern void tes_post( void );
-extern void tes_fin( void );
+int tes_println( const char* fmt, ... )
+{
+	va_list args;
+
+	if(fmt == NULL)
+	{
+		return -1;
+	}
+
+	va_start( args, fmt );
+	vprintf( fmt, args );
+	va_end( args );
+	fflush( stdout );
+
+	return 1;
+}
 
 #define LOG_FATAL( ) fprintf( stdout, "This failure is fatal. Exiting...\n" )
 
@@ -141,7 +156,7 @@ static void log_fail1(
    const char* cus, const char* x, const char* file, unsigned line )
 {
 	fprintf( stdout,
-	   "[\033[31mFAILED\033[0m] file: \"%s\"; line: %u; Expression: %s %s\n",
+	   "[\033[31mFAIL\033[0m] file: \"%s\"; line: %u; Expression: %s %s\n",
 	   file,
 	   line,
 	   x,
@@ -152,7 +167,7 @@ static void log_pass1(
    const char* cus, const char* x, const char* file, unsigned line )
 {
 	fprintf( stdout,
-	   "[\033[32mPASSED\033[0m] file: \"%s\"; line: %u; Expression: %s %s\n",
+	   "[\033[32mPASS\033[0m] file: \"%s\"; line: %u; Expression: %s %s\n",
 	   file,
 	   line,
 	   x,
@@ -167,6 +182,16 @@ int tes_chkstr( const char* x, const char* y )
 	}
 
 	return strcmp( x, y ) == -1 ? 1 : 0;
+}
+
+int tes_chkmem( void* a, void* b, unsigned sz )
+{
+	if( a == NULL || b == NULL )
+	{
+		return -1;
+	}
+
+	return memcmp( a, b, sz ) == 0 ? 1 : 0;
 }
 
 DECL_TES_FATAL( eq, "==" );
@@ -207,9 +232,6 @@ int tes_fatal_true( const char* x, const char* f, unsigned l )
 	log_fail1( "was false", x, f, l );
 	LOG_FATAL( );
 
-	atexit( tes_fin );
-	atexit( tes_post );
-
 	exit( 1 );
 
 	return 0;
@@ -219,9 +241,6 @@ int tes_fatal_false( const char* x, const char* f, unsigned l )
 {
 	log_fail1( "was true", x, f, l );
 	LOG_FATAL( );
-
-	atexit( tes_fin );
-	atexit( tes_post );
 
 	exit( 1 );
 
