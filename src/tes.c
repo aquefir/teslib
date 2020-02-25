@@ -22,8 +22,17 @@ extern void tes_fin( void );
 	{ \
 		log_fail2( STR, x, y, f, l ); \
 		LOG_FATAL( ); \
-		atexit( tes_fin ); \
-		atexit( tes_post ); \
+		exit( 1 ); return 0; \
+	} \
+	struct _tes_dummy
+
+#define DECL_TES_FATAL3( NN, STR ) \
+	int tes_fatal_##NN( \
+	   const char* x, const char* y, const char* n, const char* f, unsigned l \
+	) \
+	{ \
+		log_fail3( STR, x, y, n, f, l ); \
+		LOG_FATAL( ); \
 		exit( 1 ); return 0; \
 	} \
 	struct _tes_dummy
@@ -36,6 +45,14 @@ extern void tes_fin( void );
 	} \
 	struct _tes_dummy
 
+#define DECL_TES_WARN3( NN, STR ) \
+	int tes_warn_##NN( \
+	   const char* x, const char* y, const char* n, const char* f, unsigned l ) \
+	{ \
+		log_fail3( STR, x, y, n, f, l ); return 0; \
+	} \
+	struct _tes_dummy
+
 #define DECL_TES_PASS( NN, STR ) \
 	int tes_pass_##NN( \
 	   const char* x, const char* y, const char* f, unsigned l ) \
@@ -45,6 +62,51 @@ extern void tes_fin( void );
 	} \
 	struct _tes_dummy
 
+#define DECL_TES_PASS3( NN, STR ) \
+	int tes_pass_##NN( \
+	   const char* x, const char* y, const char* n, const char* f, unsigned l ) \
+	{ \
+		log_pass3( STR, x, y, n, f, l ); \
+		return 1; \
+	} \
+	struct _tes_dummy
+
+static void log_fail3( const char* cus,
+   const char* x,
+   const char* y,
+	const char* n,
+   const char* file,
+   unsigned line )
+{
+	fprintf( stdout,
+	   "[\033[31mFAIL\033[0m] file: \"%s\"; line: %u; Expression: %s %s %s" \
+		"(size: %s)\n",
+	   file,
+	   line,
+	   x,
+	   cus,
+	   y,
+		n );
+}
+
+static void log_pass3( const char* cus,
+   const char* x,
+   const char* y,
+	const char* n,
+   const char* file,
+   unsigned line )
+{
+	fprintf( stdout,
+	   "[\033[32mPASS\033[0m] file: \"%s\"; line: %u; Expression: %s %s %s" \
+		"(size: %s)\n",
+	   file,
+	   line,
+	   x,
+	   cus,
+	   y,
+		n );
+}
+
 static void log_fail2( const char* cus,
    const char* x,
    const char* y,
@@ -52,7 +114,7 @@ static void log_fail2( const char* cus,
    unsigned line )
 {
 	fprintf( stdout,
-	   "[\033[31mFAILED\033[0m] file: \"%s\"; line: %u; Expression: %s %s %s\n",
+	   "[\033[31mFAIL\033[0m] file: \"%s\"; line: %u; Expression: %s %s %s\n",
 	   file,
 	   line,
 	   x,
@@ -67,7 +129,7 @@ static void log_pass2( const char* cus,
    unsigned line )
 {
 	fprintf( stdout,
-	   "[\033[32mPASSED\033[0m] file: \"%s\"; line: %u; Expression: %s %s %s\n",
+	   "[\033[32mPASS\033[0m] file: \"%s\"; line: %u; Expression: %s %s %s\n",
 	   file,
 	   line,
 	   x,
@@ -115,6 +177,8 @@ DECL_TES_FATAL( le, "<=" );
 DECL_TES_FATAL( lt, "<" );
 DECL_TES_FATAL( str_eq, "===" );
 DECL_TES_FATAL( str_ne, "!==" );
+DECL_TES_FATAL3( mem_eq, "===" );
+DECL_TES_FATAL3( mem_nq, "!==" );
 
 DECL_TES_WARN( eq, "==" );
 DECL_TES_WARN( ne, "!=" );
@@ -124,6 +188,8 @@ DECL_TES_WARN( le, "<=" );
 DECL_TES_WARN( lt, "<" );
 DECL_TES_WARN( str_eq, "===" );
 DECL_TES_WARN( str_ne, "!==" );
+DECL_TES_WARN3( mem_eq, "===" );
+DECL_TES_WARN3( mem_nq, "!==" );
 
 DECL_TES_PASS( eq, "==" );
 DECL_TES_PASS( ne, "!=" );
@@ -133,6 +199,8 @@ DECL_TES_PASS( le, "<=" );
 DECL_TES_PASS( lt, "<" );
 DECL_TES_PASS( str_eq, "===" );
 DECL_TES_PASS( str_ne, "!==" );
+DECL_TES_PASS3( mem_eq, "===" );
+DECL_TES_PASS3( mem_nq, "!==" );
 
 int tes_fatal_true( const char* x, const char* f, unsigned l )
 {
@@ -156,7 +224,7 @@ int tes_fatal_false( const char* x, const char* f, unsigned l )
 	atexit( tes_post );
 
 	exit( 1 );
-	
+
 	return 0;
 }
 

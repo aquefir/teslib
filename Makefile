@@ -25,7 +25,6 @@ LIBDIRS   :=
 FWORKS :=
 
 CFILES    := \
-	src/main.c \
 	src/tes.c
 HFILES    := \
 	include/tes/battery.h \
@@ -34,7 +33,7 @@ HFILES    := \
 CPPFILES  :=
 HPPFILES  :=
 OFILES    := $(CFILES:.c=.c.o) $(CPPFILES:.cpp=.cpp.o)
-# address-sanitisation metadata
+# address-sanitisation & codecov metadata
 GCNOFILES := $(CFILES:.c=.c.gcno) $(CPPFILES:.cpp=.cpp.gcno)
 GCDAFILES := $(CFILES:.c=.c.gcda) $(CPPFILES:.cpp=.cpp.gcda)
 
