@@ -28,7 +28,7 @@ LIBDIRS += $(patsubst %,$(3PLIBDIR)/%lib,$(3PLIBS))
 LIBS += $(3PLIBS)
 
 # Variable transformations for command invocation
-LIB := $(patsubst %,-l%,$(LIBS)) $(patsubst %,-L%,$(LIBDIRS))
+LIB := $(patsubst %,-L%,$(LIBDIRS)) $(patsubst %,-l%,$(LIBS))
 ifeq ($(CC.CUSTOM),tcc)
 INCLUDE := $(patsubst %,-I%,$(INCLUDES)) $(patsubst %,-isystem %,$(INCLUDEL))
 else
@@ -40,7 +40,7 @@ FWORK := $(patsubst %,-framework %,$(FWORKS))
 # Populated below
 TARGETS :=
 
-TESTARGET := $(PROJECT)_test
+TESTARGETS := $(TES_CFILES:.tes.c=.c.tes) $(TES_CPPFILES:.tes.cpp=.cpp.tes)
 
 # specify all target filenames
 EXETARGET := $(PROJECT)
@@ -114,24 +114,24 @@ else
 ifeq ($(strip $(NO_TES)),)
 ifeq ($(strip $(CC.NAME)),gcc)
 cov: CFLAGS += -O1 -g3 -UNDEBUG -fprofile-arcs -ftest-coverage -DTES_BUILD=1
+cov: LDFLAGS += -fprofile-arcs -ftest-coverage
 else ifeq ($(strip $(CC.NAME)),clang)
 cov: CFLAGS += -O1 -g3 -UNDEBUG -fprofile-instr-generate -fcoverage-mapping \
 	-DTES_BUILD=1
+cov: LDFLAGS += -fprofile-instr-generate -fcoverage-mapping
 endif
 else
 cov: -UTES_BUILD
 endif # NO_TES
 endif # CC.CUSTOM
 ifeq ($(strip $(NO_TES)),)
-ifeq ($(strip $(CC.NAME)),gcc)
+ifeq ($(strip $(CXX.NAME)),g++)
 cov: CXXFLAGS += -O1 -g3 -UNDEBUG -fprofile-arcs -ftest-coverage -DTES_BUILD=1
-else ifeq ($(strip $(CC.NAME)),clang)
+else ifeq ($(strip $(CC.NAME)),clang++)
 cov: CXXFLAGS += -O1 -g3 -UNDEBUG -fprofile-instr-generate \
 	-fcoverage-mapping -DTES_BUILD=1
 endif
-cov: LDFLAGS += -fprofile-instr-generate -fcoverage-mapping
-cov: LIB += -ltes
-cov: $(TESTARGET)
+cov: $(TESTARGETS)
 else
 cov: -UTES_BUILD
 cov: $(TARGETS)
@@ -159,8 +159,7 @@ asan: CXXFLAGS += -fsanitize=address -fno-omit-frame-pointer -O1 -g3 \
 	-fno-common -fno-optimize-sibling-calls -fsanitize=undefined \
 	-fno-sanitize-recover=all -DTES_BUILD=1
 #asan: LDFLAGS += -fsanitize=address -L$(3PLIBDIR)/teslib
-asan: LIB += -ltes
-asan: $(TESTARGET)
+asan: $(TESTARGETS)
 else
 asan: CXXFLAGS += -UTES_BUILD
 asan: $(TARGETS)
@@ -173,28 +172,37 @@ endif
 %.c.o: %.c
 	$(CC) -c -o $@ $(CFLAGS) $(INCLUDE) $<
 
+%.tes.cpp.o: %.tes.cpp
+	$(CXX) -c -o $@ $(CXXFLAGS) $(INCLUDE) $<
+
+%.tes.c.o: %.tes.c
+	$(CC) -c -o $@ $(CFLAGS) $(INCLUDE) $<
+
+%.cpp.tes: %.tes.cpp.o $(ATARGET)
+	$(CCLD) $(LDFLAGS) -o $@ $^ $(LIB)
+
+%.c.tes: %.tes.c.o $(ATARGET)
+	$(CCLD) $(LDFLAGS) -o $@ $^ $(LIB)
+
 # Static library builds
 $(ATARGET): $(OFILES)
 	$(AR) $(ARFLAGS) $@ $^
 
 # Shared library builds
 $(SOTARGET): $(OFILES)
-	$(CCLD) $(LDFLAGS) -shared -o $@ $(LIB) $^
+	$(CCLD) $(LDFLAGS) -shared -o $@ $^ $(LIB)
 	$(REALSTRIP) -s $^
 
 # Executable builds
 $(EXETARGET): $(OFILES)
-	$(CCLD) $(LDFLAGS) -o $@ $(LIB) $^
+	$(CCLD) $(LDFLAGS) -o $@ $^ $(LIB)
 	$(REALSTRIP) -s $^
-
-$(TESTARGET): $(OFILES) $(TES_OFILES)
-	$(CCLD) $(LDFLAGS) -o $@ $(LIB) $^
 
 DSYMS := $(patsubst %,%.dSYM,$(TARGETS)) $(patsubst %,%.dSYM,$(TESTARGET))
 
 clean:
 	$(RM) $(TARGETS)
-	$(RM) $(TESTARGET)
+	$(RM) $(TESTARGETS)
 	$(RM) -r $(DSYMS)
 	$(RM) $(OFILES)
 	$(RM) $(GCNOFILES)
