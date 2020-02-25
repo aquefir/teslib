@@ -12,25 +12,16 @@
 #include <string.h>
 
 /* start a unit test */
-#define TES_OPEN( TITLE ) \
-	static const char* test_title = TITLE; \
-	static int tes_test_ttl = 0, \
-		tes_ttl_failed = 0, \
-		tes_this_failed = 0, \
-		tes_error_ct = 0, \
-		tes_assert_ct = 0, \
-		tes_assert_dot_ct = 0; \
-	int main( int ac, char* av[] ) \
+#define TES_OPEN( ) \
+int main( int ac, char* av[] ) \
 	{ \
 		tes_println( "TEST ENGINEERING SUITE\n\nCopyright (C) 2019-2020 ARQADIUM LLC\nReleased under BSD-2-Clause.\n" ); \
-		tes_println( "Test battery for: %s\n", test_title ); \
-		(void)0
+		tes_println( "Test battery for: %s\n", __FILE__ );
 
 /* finish a unit test */
 #define TES_CLOSE( ) \
-		tes_println( "Test battery complete!\n\nRESULT: %s\n%i of %i tests passed", tes_test_failed == 0 ? "Success." : "Failure!", \
-			(tes_test_ttl - tes_ttl_failed), tes_test_ttl ); \
-		return tes_ttl_failed; \
+		tes_println( "Test battery complete!\n" ); \
+		return 0; \
 	} struct _tes_dummy
 
 #define TES_ASSERT_EQ( X, Y ) \
