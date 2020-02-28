@@ -182,7 +182,7 @@ int tes_chkstr( const char* x, const char* y )
 		return -1;
 	}
 
-	return strcmp( x, y ) == -1 ? 1 : 0;
+	return strcmp( x, y ) == 0 ? 1 : 0;
 }
 
 int tes_chkmem( void* a, void* b, unsigned sz )
