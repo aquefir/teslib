@@ -16,7 +16,7 @@ int tes_println( const char* fmt, ... )
 {
 	va_list args;
 
-	if(fmt == NULL)
+	if( fmt == NULL )
 	{
 		return -1;
 	}
@@ -38,18 +38,22 @@ int tes_println( const char* fmt, ... )
 	{ \
 		log_fail2( STR, x, y, f, l ); \
 		LOG_FATAL( ); \
-		exit( 1 ); return 0; \
+		exit( 1 ); \
+		return 0; \
 	} \
 	struct _tes_dummy
 
 #define DECL_TES_FATAL3( NN, STR ) \
-	int tes_fatal_##NN( \
-	   const char* x, const char* y, const char* n, const char* f, unsigned l \
-	) \
+	int tes_fatal_##NN( const char* x, \
+	   const char* y, \
+	   const char* n, \
+	   const char* f, \
+	   unsigned l ) \
 	{ \
 		log_fail3( STR, x, y, n, f, l ); \
 		LOG_FATAL( ); \
-		exit( 1 ); return 0; \
+		exit( 1 ); \
+		return 0; \
 	} \
 	struct _tes_dummy
 
@@ -57,15 +61,20 @@ int tes_println( const char* fmt, ... )
 	int tes_warn_##NN( \
 	   const char* x, const char* y, const char* f, unsigned l ) \
 	{ \
-		log_fail2( STR, x, y, f, l ); return 0; \
+		log_fail2( STR, x, y, f, l ); \
+		return 0; \
 	} \
 	struct _tes_dummy
 
 #define DECL_TES_WARN3( NN, STR ) \
-	int tes_warn_##NN( \
-	   const char* x, const char* y, const char* n, const char* f, unsigned l ) \
+	int tes_warn_##NN( const char* x, \
+	   const char* y, \
+	   const char* n, \
+	   const char* f, \
+	   unsigned l ) \
 	{ \
-		log_fail3( STR, x, y, n, f, l ); return 0; \
+		log_fail3( STR, x, y, n, f, l ); \
+		return 0; \
 	} \
 	struct _tes_dummy
 
@@ -79,8 +88,11 @@ int tes_println( const char* fmt, ... )
 	struct _tes_dummy
 
 #define DECL_TES_PASS3( NN, STR ) \
-	int tes_pass_##NN( \
-	   const char* x, const char* y, const char* n, const char* f, unsigned l ) \
+	int tes_pass_##NN( const char* x, \
+	   const char* y, \
+	   const char* n, \
+	   const char* f, \
+	   unsigned l ) \
 	{ \
 		log_pass3( STR, x, y, n, f, l ); \
 		return 1; \
@@ -90,37 +102,37 @@ int tes_println( const char* fmt, ... )
 static void log_fail3( const char* cus,
    const char* x,
    const char* y,
-	const char* n,
+   const char* n,
    const char* file,
    unsigned line )
 {
 	fprintf( stdout,
-	   "[\033[31mFAIL\033[0m] file: \"%s\"; line: %u; Expression: %s %s %s" \
-		"(size: %s)\n",
+	   "[\033[31mFAIL\033[0m] file: \"%s\"; line: %u; Expression: %s %s %s"
+	   "(size: %s)\n",
 	   file,
 	   line,
 	   x,
 	   cus,
 	   y,
-		n );
+	   n );
 }
 
 static void log_pass3( const char* cus,
    const char* x,
    const char* y,
-	const char* n,
+   const char* n,
    const char* file,
    unsigned line )
 {
 	fprintf( stdout,
-	   "[\033[32mPASS\033[0m] file: \"%s\"; line: %u; Expression: %s %s %s" \
-		"(size: %s)\n",
+	   "[\033[32mPASS\033[0m] file: \"%s\"; line: %u; Expression: %s %s %s"
+	   "(size: %s)\n",
 	   file,
 	   line,
 	   x,
 	   cus,
 	   y,
-		n );
+	   n );
 }
 
 static void log_fail2( const char* cus,
