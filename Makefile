@@ -1,41 +1,48 @@
 ##############################################################################
-##                          Test Engineering Suite                          ##
+##                                 Library1                                 ##
 ##                                                                          ##
-##                    Copyright © 2019-2020 ARQADIUM LLC                    ##
+##                        Copyright © 20XX Acme Inc.                        ##
 ##                       Released under BSD-2-Clause.                       ##
 ##############################################################################
 
-include base.mk
+include etc/base.mk
 
 PROJECT := tes
-EXEFILE :=
-SOFILE  :=
-AFILE   := 1
 
+# put a ‘1’ for the desired target types to compile
+SOFILE :=
+AFILE  := 1
+
+# space-separated path list for #includes
 # <system> includes
 INCLUDES := include
 # "local" includes
 INCLUDEL := src
 
-# libraries
+# space-separated library name list
 LIBS      :=
 LIBDIRS   :=
 
-# frameworks (macOS only)
+# frameworks (macOS target only)
 FWORKS :=
 
-CFILES    := \
+# ‘3P’ are in-tree 3rd-party dependencies
+# 3PLIBDIR is the base directory
+# 3PLIBS is the folder names in the base directory for each library
+3PLIBDIR := 3rdparty
+3PLIBS   :=
+
+# sources
+CFILES   := \
 	src/tes.c
-HFILES    := \
+HFILES   := \
 	include/tes/battery.h \
 	include/tes/program.h \
 	src/tes.h
-CPPFILES  :=
-HPPFILES  :=
-OFILES    := $(CFILES:.c=.c.o) $(CPPFILES:.cpp=.cpp.o)
-# address-sanitisation & codecov metadata
-GCNOFILES := $(CFILES:.c=.c.gcno) $(CPPFILES:.cpp=.cpp.gcno)
-GCDAFILES := $(CFILES:.c=.c.gcda) $(CPPFILES:.cpp=.cpp.gcda)
+CPPFILES :=
+HPPFILES :=
+
+NO_TES := 1
 
 # this defines all our usual targets
-include targets.mk
+include etc/targets.mk

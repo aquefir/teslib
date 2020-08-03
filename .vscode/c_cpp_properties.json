@@ -20,16 +20,7 @@
             ],
             "cStandard": "c89",
             "cppStandard": "c++11",
-            "compilerPath": "/usr/local/bin/gcc-8"
-        },
-        {
-            "name": "Win32",
-            "includePath": [
-                "${workspaceFolder}/include"
-            ],
-            "cStandard": "c89",
-            "cppStandard": "c++11",
-            "compilerPath": "/usr/local/bin/gcc-8"
+            "compilerPath": "/usr/bin/gcc"
         }
     ],
     "version": 4
