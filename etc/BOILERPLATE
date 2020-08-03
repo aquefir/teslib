@@ -5,7 +5,7 @@ Boilerplate for C-like languages:
 /****************************************************************************\
  *                          Test Engineering Suite                          *
  *                                                                          *
- *                    Copyright © 2019-2020 ARQADIUM LLC                    *
+ *                      Copyright © 2019-2020 Aquefir.                      *
  *                       Released under BSD-2-Clause.                       *
 \****************************************************************************/
 
@@ -14,6 +14,6 @@ Hash-based boilerplate (Python, POSIX shell, Makefile):
 ##############################################################################
 ##                          Test Engineering Suite                          ##
 ##                                                                          ##
-##                    Copyright © 2019-2020 ARQADIUM LLC                    ##
+##                      Copyright © 2019-2020 Aquefir.                      ##
 ##                       Released under BSD-2-Clause.                       ##
 ##############################################################################
