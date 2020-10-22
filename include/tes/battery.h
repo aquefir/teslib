@@ -19,7 +19,7 @@
 		   "TEST ENGINEERING SUITE\n\nCopyright (C) 2019-2020 ARQADIUM LLC\nReleased under BSD-2-Clause.\n" ); \
 		tes_println( "Test battery for: %s\n", __FILE__ ); \
 		{ \
-			void* _tes_dummy;
+			void* _tes_dummy
 
 /* finish a unit test */
 #define TES_CLOSE( ) \
