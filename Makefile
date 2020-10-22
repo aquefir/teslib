@@ -5,7 +5,7 @@
 ##                       Released under BSD-2-Clause.                       ##
 ##############################################################################
 
-include etc/base.mk
+include $(AQ)/lib/slick/base.mk
 
 PROJECT := tes
 
@@ -20,8 +20,8 @@ INCLUDES := include
 INCLUDEL := src
 
 # space-separated library name list
-LIBS      :=
-LIBDIRS   :=
+LIBS    :=
+LIBDIRS :=
 
 # frameworks (macOS target only)
 FWORKS :=
@@ -33,16 +33,16 @@ FWORKS :=
 3PLIBS   :=
 
 # sources
-CFILES   := \
+CFILES    := \
 	src/tes.c
-HFILES   := \
+PUBHFILES := \
 	include/tes/battery.h \
-	include/tes/program.h \
+	include/tes/program.h
+CPPFILES  :=
+PRVHFILES := \
 	src/tes.h
-CPPFILES :=
-HPPFILES :=
 
 NO_TES := 1
 
 # this defines all our usual targets
-include etc/targets.mk
+include $(AQ)/lib/slick/targets.mk
